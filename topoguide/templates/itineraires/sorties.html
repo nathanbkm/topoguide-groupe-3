@@ -39,13 +39,13 @@
 
 </table>
 
-{% if trip_list %}
-
 <form action="{% url 'itin:detail_route' route.id %}" method="get">
     <input class="normal" id="searchbox" name="search_term" type="text" placeholder="Search">
     <button class="normal" type="submit"><i class="normal">Search</i>
     </button>
 </form>
+
+{% if trip_list %}
 
 <table>
     <tr>
