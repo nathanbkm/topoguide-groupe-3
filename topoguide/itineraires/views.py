@@ -16,18 +16,19 @@ class IndexView(generic.ListView):
         Returns:
             Itineraire[] : The sorted itineraires
         """
-        result = Itineraire.objects.order_by('title')
+        route = Itineraire.objects.order_by('title')
 
         query = self.request.GET.get('search_term')
         if query:
-            result = result.filter(Q(description__icontains = query) | Q(title__icontains = query))
-        return result
+            route = route.filter(Q(description__icontains = query) | Q(title__icontains = query))
+        return route
 
 class RouteDetailView(generic.DetailView) :
     """View for a route along with its trips
     """
     model = Itineraire
     template_name = "itineraires/sorties.html"
+    
     def get_context_data(self, **kwargs):
         """Adds the context variables needed for the html to work
         """
@@ -39,6 +40,10 @@ class RouteDetailView(generic.DetailView) :
         context['route'] = route
         # Gets all trips on this route
         context['trip_list'] = Sortie.objects.all().filter(route=route)
+        
+        query = self.request.GET.get('search_term')
+        if query:
+            context['trip_list'] = context['trip_list'].filter(Q(user__username__icontains = query))
         return context
 
 class TripDetailView(generic.DetailView) :
