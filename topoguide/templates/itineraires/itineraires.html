@@ -8,6 +8,13 @@ Topoguide - Index
 
 <h1>Itinéraires</h1>
 {% if route_list %}
+
+<form action="{% url 'itin:index' %}" method="get">
+    <input class="normal" id="searchbox" name="search_term" type="text" placeholder="Search">
+    <button class="normal" type="submit"><i class="normal">Search</i>
+    </button>
+</form>
+
 <table>
     <tr>
         <th>Itinéraire</th>

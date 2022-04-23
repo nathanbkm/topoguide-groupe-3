@@ -2,6 +2,7 @@ from django.http import HttpResponseForbidden
 from django.urls import reverse
 from django.views import generic
 from .models import Itineraire, Sortie
+from django.db.models import Q
 
 class IndexView(generic.ListView):
     """View for the main page aka the list of routes
@@ -15,7 +16,12 @@ class IndexView(generic.ListView):
         Returns:
             Itineraire[] : The sorted itineraires
         """
-        return Itineraire.objects.order_by('title')
+        result = Itineraire.objects.order_by('title')
+
+        query = self.request.GET.get('search_term')
+        if query:
+            result = result.filter(Q(description__icontains = query) | Q(title__icontains = query))
+        return result
 
 class RouteDetailView(generic.DetailView) :
     """View for a route along with its trips
