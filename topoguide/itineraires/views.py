@@ -19,9 +19,24 @@ class IndexView(generic.ListView):
         route = Itineraire.objects.order_by('title')
 
         query = self.request.GET.get('search_term')
+        
         if query:
             route = route.filter(Q(description__icontains = query) | Q(title__icontains = query))
+            return route
+        # Gets the difficulty choose in the range   
+        difficulty = self.request.GET.get('difficulty')
+        # Filter the trips which difficulties are lower than the one inserted
+        if difficulty:
+            route = route.filter(Q(estim_difficulty__lte = difficulty))
+        # Gets the two duration between which we search the real duration   
+        duration_inf = self.request.GET.get('duration_inf')
+        duration_sup = self.request.GET.get('duration_sup')
+        # Filter the trips which the real durations are included between the two inserted time if inserted
+        if duration_inf and duration_sup:
+            route = route.filter(Q(estim_duration__range = (duration_inf, duration_sup)))
+        
         return route
+        
 
 class RouteDetailView(generic.DetailView) :
     """View for a route along with its trips
