@@ -1,3 +1,4 @@
+from tkinter import HIDDEN
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.auth.models import User
 from django.db import models
@@ -77,7 +78,7 @@ class Itineraire(models.Model) :
         return time_format(self.estim_duration)
     
 class Sortie(models.Model) :
-    """Class that reprensents a trip on a given route
+    """Class that represents a trip on a given route
 
     Attributes :
         user = (models.ForeignKey(User)) : The user that created this trip
@@ -137,8 +138,35 @@ class Sortie(models.Model) :
 
             
     def __str__(self) :
-        return f"{self.route} by {self.user}"
+        return f"{self.route} by {self.user} on {self.date}"
     
     def time_display(self) :
         """Time formatting"""
         return time_format(self.actual_duration)
+    
+class Comment(models.Model):
+    """Class that represents a comment on a given trip
+
+    Attributes :
+        trip (models.ForeignKey(Sortie)) : The trip taken by the author
+        pub_date (models.DateField) : The publication date of the comment
+        author (models.ForeignKey(User)) : The user that write this comment
+        description (models.TextField) : A text that describes the trip
+        mod_status (models.CharField) : The moderation status of the comment
+    """
+    class mod_level(models.TextChoices):
+        PUBLIC  = 'PU', ('Public')
+        PRIVATE = 'PR', ('Privé')
+        HIDDEN  = 'HI', ('Caché')
+        
+    trip = models.ForeignKey(Sortie,verbose_name="Sortie", on_delete=models.CASCADE)
+    pub_date = models.DateTimeField("Date de publication",default=timezone.now)
+    author = models.ForeignKey(User,verbose_name="Auteur",on_delete=models.CASCADE)
+    description = models.TextField("Description",max_length=1000)
+    mod_status = models.CharField(
+        "Visibilité du commentaire",
+        max_length = 2,
+        choices=mod_level.choices,
+        default=mod_level.PUBLIC,
+    )
+    
