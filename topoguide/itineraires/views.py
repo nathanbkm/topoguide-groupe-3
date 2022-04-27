@@ -1,7 +1,9 @@
 from django.http import HttpResponseForbidden
 from django.urls import reverse
 from django.views import generic
-from .models import Itineraire, Sortie
+
+from .models import Itineraire, Sortie, Comment
+from .forms import CommentForm
 
 class IndexView(generic.ListView):
     """View for the main page aka the list of routes
@@ -35,11 +37,13 @@ class RouteDetailView(generic.DetailView) :
         context['trip_list'] = Sortie.objects.all().filter(route=route)
         return context
 
-class TripDetailView(generic.DetailView) :
-    """View for a trip showing every information
+class TripDetailView(generic.edit.FormMixin, generic.DetailView) :
+    """View for a trip showing every information, with a comments section such as a blog
     """
     model = Sortie
+    form_class = CommentForm
     template_name = 'itineraires/sortie.html'
+    
     def get_context_data(self, **kwargs):
         """Adds the context variables needed for the html to work
         """
@@ -51,8 +55,34 @@ class TripDetailView(generic.DetailView) :
         context['trip'] = trip
         # Gets the route of the trip for more lisibility
         context['route'] = trip.route
+        # Gets the comments related to this trip
+        context['comments'] = Comment.objects.filter(trip_id=trip.id).order_by('-pub_date')
         return context
+    
+    def get_success_url(self):
+        """ Returns a url to update this page after posting a comment
+        """
+        return reverse('itin:detail_trip', kwargs={'pk': self.object.pk})
 
+    def post(self, request, *args, **kwargs):
+        """ Constructs a form, checks the validity of the form and processes it accordingly
+        """
+        self.object = self.get_object()
+        form = self.get_form()
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    def form_valid(self, form):
+        """Checks if the form is valid, and adds the author and trip
+        attributes to the comment
+        """
+        form.instance.author = self.request.user
+        form.instance.trip = Sortie.objects.get(id=self.get_object().id)
+        form.save()
+        return super().form_valid(form)
+    
 class TripCreateView(generic.CreateView):
     """View for the creation of a new trip
     """
