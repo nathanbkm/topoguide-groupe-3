@@ -38,4 +38,50 @@ Sortie de {{ trip.user.username }}
     </tr>
 </table>
 
+
+<h2>Commentaires</h2>
+
+<!--Form-->
+<form method="post" >
+    {% csrf_token %}
+    {{form}}
+    <input class="normal" type="submit" value="Partager">
+</form>
+
+{% if comments %}
+    <table>
+        <tr>
+            <th>Par</th>
+            <th>Le</th>
+            <th>Description</th>
+        </tr>
+        {% for comment in comments %}
+            {% if comment.mod_status == 'PU' %}
+                <tr>
+                    <td>{{ comment.author }}</td>
+                    <td>{{ comment.pub_date }}</td>
+                    <td>{{ comment.description }}</td>
+                </tr>
+            {% elif comment.mod_status == 'PR' and comment.author == request.user %}
+                <tr>
+                    <td>{{ comment.author }}</td>
+                    <td>{{ comment.pub_date }}</td>
+                    <td>{{ comment.description }}</td>
+                </tr> 
+            {% elif comment.mod_status == 'HI' %}
+                {% if comment.author == request.user or trip.user == request.user %}
+                <tr>
+                    <td>{{ comment.author }}</td>
+                    <td>{{ comment.pub_date }}</td>
+                    <td>{{ comment.description }}</td>
+                </tr>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+    </table>
+{% else %}
+    <p class="rawtext">Pas encore de commentaires. <br> Soyez le premier à ajouter
+    un commentaire pour cette sortie. </p>
+{% endif %}
+
 {% endblock %}
