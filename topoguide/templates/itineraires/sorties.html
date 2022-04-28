@@ -38,8 +38,41 @@
     </tr>
 
 </table>
+<br>
+<form action="{% url 'itin:detail_route' route.id %}" method="get">
+    <input class="normal" name="search_term" type="text" placeholder="Search">
+    <button class="normal" type="submit"><i class="normal">Search</i>
+    </button>
+</form>
+<br>
+
+<form action="{% url 'itin:detail_route' route.id %}" method="get">
+    <label for="date_inf">Publié entre le </label>
+    <input class="normal" type="date" id="date_inf" name="date_pub_inf">
+    <label for="date_sup"> et le </label>
+    <input class="normal" type="date" id="date_sup" name="date_pub_sup">
+    <br>
+    <label for="difficulty">Difficulté : </label>
+    1 <input class="normal" type="range" id="difficulty" name="difficulty" step="1" min="1" max="5" value="5"> 5
+    <br>
+    <label for="duration">Durée entre </label>
+    <input class="normal" type="time" id="duration_inf" name="duration_inf" value="00:00">
+    <label for="duration"> et </label>
+    <input class="normal" type="time" id="duration_sup" name="duration_sup">
+    <br>
+    <input type="checkbox" id="deb" name="B">
+    <label for="deb"> Tous débutants</label><br>
+    <input type="checkbox" id="mixte" name="M">
+    <label for="mixte"> Mixte</label><br>
+    <input type="checkbox" id="exp" name="E">
+    <label for="exp"> Tous expérimentés</label>
+    <br>
+    <button class="normal" type="submit"><i class="normal">Filtrer</i>
+    </button>
+  </form>
 
 {% if trip_list %}
+
 <table>
     <tr>
         <th>Par</th>

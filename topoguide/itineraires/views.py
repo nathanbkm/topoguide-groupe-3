@@ -4,6 +4,7 @@ from django.views import generic
 
 from .models import Itineraire, Sortie, Comment
 from .forms import CommentForm
+from django.db.models import Q
 
 class IndexView(generic.ListView):
     """View for the main page aka the list of routes
@@ -17,13 +18,34 @@ class IndexView(generic.ListView):
         Returns:
             Itineraire[] : The sorted itineraires
         """
-        return Itineraire.objects.order_by('title')
+        route = Itineraire.objects.order_by('title')
+
+        query = self.request.GET.get('search_term')
+        
+        if query:
+            route = route.filter(Q(description__icontains = query) | Q(title__icontains = query))
+            return route
+        # Gets the difficulty choose in the range   
+        difficulty = self.request.GET.get('difficulty')
+        # Filter the trips which difficulties are lower than the one inserted
+        if difficulty:
+            route = route.filter(Q(estim_difficulty__lte = difficulty))
+        # Gets the two duration between which we search the real duration   
+        duration_inf = self.request.GET.get('duration_inf')
+        duration_sup = self.request.GET.get('duration_sup')
+        # Filter the trips which the real durations are included between the two inserted time if inserted
+        if duration_inf and duration_sup:
+            route = route.filter(Q(estim_duration__range = (duration_inf, duration_sup)))
+        
+        return route
+        
 
 class RouteDetailView(generic.DetailView) :
     """View for a route along with its trips
     """
     model = Itineraire
     template_name = "itineraires/sorties.html"
+    
     def get_context_data(self, **kwargs):
         """Adds the context variables needed for the html to work
         """
@@ -35,6 +57,57 @@ class RouteDetailView(generic.DetailView) :
         context['route'] = route
         # Gets all trips on this route
         context['trip_list'] = Sortie.objects.all().filter(route=route)
+        # Gets the charfield in the charbar        
+        search_term = self.request.GET.get('search_term')
+        # Filter the trips with the usernames that contains what we have in the searchbar if something is writen
+        if search_term:
+            context['trip_list'] = context['trip_list'].filter(Q(user__username__icontains = search_term))
+            return context
+        # Gets the two dates inserted in the interface    
+        date_pub_inf = self.request.GET.get('date_pub_inf')
+        date_pub_sup = self.request.GET.get('date_pub_sup')
+        # Filter the trips which the date of publication is included between the two inserted date if inserted
+        if date_pub_inf and date_pub_sup:
+            context['trip_list'] = context['trip_list'].filter(Q(date__range = (date_pub_inf, date_pub_sup)))
+        # Gets the difficulty choose in the range   
+        difficulty = self.request.GET.get('difficulty')
+        # Filter the trips which difficulties are lower than the one inserted
+        if difficulty:
+            context['trip_list'] = context['trip_list'].filter(Q(difficulty_felt__lte = difficulty))
+        # Gets the two duration between which we search the real duration   
+        duration_inf = self.request.GET.get('duration_inf')
+        duration_sup = self.request.GET.get('duration_sup')
+        # Filter the trips which the real durations are included between the two inserted time if inserted
+        if duration_inf and duration_sup:
+            context['trip_list'] = context['trip_list'].filter(Q(actual_duration__range = (duration_inf, duration_sup)))
+        # Gets the information of a checkered checkbox
+        debutant = self.request.GET.get('B')
+        mixte = self.request.GET.get('M')
+        expert = self.request.GET.get('E')
+        # Filter the trips which the experience of the group are checkered by the ckeckboxes
+        if debutant and mixte and expert:
+            context['trip_list'] = context['trip_list'].filter((Q(group_xp = 'B') | Q(group_xp = 'M')) | Q(group_xp = 'E'))
+            return context
+        if debutant and mixte:
+            context['trip_list'] = context['trip_list'].filter(Q(group_xp = 'B') | Q(group_xp = 'M'))
+            return context
+        if debutant and expert:
+            context['trip_list'] = context['trip_list'].filter(Q(group_xp = 'B') | Q(group_xp = 'E'))
+            return context
+        if mixte and expert:
+            context['trip_list'] = context['trip_list'].filter(Q(group_xp = 'M') | Q(group_xp = 'E'))
+            return context
+            return context
+        if debutant:
+            context['trip_list'] = context['trip_list'].filter(Q(group_xp = 'B'))
+            return context
+        if mixte:
+            context['trip_list'] = context['trip_list'].filter(Q(group_xp = 'M'))
+            return context
+        if expert:
+            context['trip_list'] = context['trip_list'].filter(Q(group_xp = 'E'))
+            return context
+        
         return context
 
 class TripDetailView(generic.edit.FormMixin, generic.DetailView) :

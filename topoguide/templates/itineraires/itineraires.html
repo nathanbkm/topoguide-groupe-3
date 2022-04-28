@@ -8,6 +8,26 @@ Topoguide - Index
 
 <h1>Itinéraires</h1>
 {% if route_list %}
+
+<form action="{% url 'itin:index' %}" method="get">
+    <input class="normal" id="searchbox" name="search_term" type="text" placeholder="Search">
+    <button class="normal" type="submit"><i class="normal">Search</i>
+    </button>
+</form>
+
+<form action="{% url 'itin:index' %}" method="get">
+    <label for="difficulty">Difficulté : </label>
+    1 <input class="normal" type="range" id="difficulty" name="difficulty" step="1" min="1" max="5" value="5"> 5
+    <br>
+    <label for="duration">Durée entre </label>
+    <input class="normal" type="time" id="duration_inf" name="duration_inf" value="00:00">
+    <label for="duration"> et </label>
+    <input class="normal" type="time" id="duration_sup" name="duration_sup">
+    <br>
+    <button class="normal" type="submit"><i class="normal">Filtrer</i>
+    </button>
+</form>
+
 <table>
     <tr>
         <th>Itinéraire</th>
