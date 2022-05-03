@@ -1,11 +1,13 @@
-from django.http import HttpResponseForbidden
+from django.http import HttpResponse, HttpResponseForbidden
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from django.views import generic
+from django.views.generic import ListView, DetailView, CreateView, UpdateView
+from django.views.generic.edit import FormMixin
 
-from .models import Itineraire, Sortie, Comment
-from .forms import CommentForm
+from .models import Itineraire, Photo, Sortie, Comment
+from .forms import CommentForm, ImageForm
 
-class IndexView(generic.ListView):
+class IndexView(ListView):
     """View for the main page aka the list of routes
     """
     template_name = 'itineraires/itineraires.html'
@@ -19,7 +21,7 @@ class IndexView(generic.ListView):
         """
         return Itineraire.objects.order_by('title')
 
-class RouteDetailView(generic.DetailView) :
+class RouteDetailView(DetailView) :
     """View for a route along with its trips
     """
     model = Itineraire
@@ -37,7 +39,7 @@ class RouteDetailView(generic.DetailView) :
         context['trip_list'] = Sortie.objects.all().filter(route=route)
         return context
 
-class TripDetailView(generic.edit.FormMixin, generic.DetailView) :
+class TripDetailView(FormMixin, DetailView) :
     """View for a trip showing every information, with a comments section such as a blog
     """
     model = Sortie
@@ -57,6 +59,8 @@ class TripDetailView(generic.edit.FormMixin, generic.DetailView) :
         context['route'] = trip.route
         # Gets the comments related to this trip
         context['comments'] = Comment.objects.filter(trip_id=trip.id).order_by('-pub_date')
+        # Gets the images related to this trip
+        context['photos'] = Photo.objects.filter(trip_id=trip.id).order_by('-pub_date')
         return context
     
     def get_success_url(self):
@@ -83,7 +87,7 @@ class TripDetailView(generic.edit.FormMixin, generic.DetailView) :
         form.save()
         return super().form_valid(form)
     
-class TripCreateView(generic.CreateView):
+class TripCreateView(CreateView):
     """View for the creation of a new trip
     """
     model = Sortie 
@@ -111,7 +115,7 @@ class TripCreateView(generic.CreateView):
             id=self.request.GET.get("route_id"))
         return super().form_valid(form)
 
-class TripUpdateView(generic.UpdateView):
+class TripUpdateView(UpdateView):
     """View to edit a trip
     """
     model = Sortie
@@ -137,3 +141,35 @@ class TripUpdateView(generic.UpdateView):
             return super().form_valid(form)
         else :
             return HttpResponseForbidden("Vous n'avez pas créé cette sortie, vous ne pouvez donc pas la modifier.")
+        
+
+def imagesCreateView(request, trip_id):
+    """
+    Create new images related to a specified trip based
+    on user field input in form
+    Args:
+        request: the incoming request, GET or POST
+        trip_id: The trip's ID 
+    Returns:
+        - a page with an empty form if it was a GET request,
+        - a page with an empty form if it was a POST request
+          with invalid data,
+        - or the page of the related trip if it was a POST with valid data
+    """
+    trip = get_object_or_404(Sortie, pk=trip_id)
+    
+    if trip.user != request.user:
+        return HttpResponse("Vous ne pouvez ajouter une image que pour les sorties que vous avez créé.")
+    elif request.method == 'GET':
+        form = ImageForm()
+    elif request.method == 'POST':
+        form = ImageForm(request.POST, request.FILES)
+        files = request.FILES.getlist('images')
+        if form.is_valid():
+            for f in files:
+                Photo.objects.create(
+                    image = f,
+                    trip = trip
+                )
+            return redirect('itin:detail_trip', pk=trip_id)
+    return render(request, 'itineraires/image_form.html', {'form': form})
