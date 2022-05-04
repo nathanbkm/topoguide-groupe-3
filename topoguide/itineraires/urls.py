@@ -16,7 +16,7 @@ urlpatterns = [
         '', 
         name = 'homepage',
         view = login_required(
-            views.IndexView.as_view()
+            views.HomagepageView
         )
     ),
     

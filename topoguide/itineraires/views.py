@@ -8,6 +8,9 @@ from .models import Itineraire, Sortie, Comment, Photo
 from .forms import CommentForm, ImageForm
 from django.db.models import Q
 
+def HomagepageView(request):
+    return render(request, 'itineraires/homepage.html', )
+
 class IndexView(ListView):
     """View for the main page aka the list of routes
     """
