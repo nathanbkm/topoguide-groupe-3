@@ -72,6 +72,26 @@
 {% endif %}
 
 
+<style>
+    #map { height: 180px; }
+</style>
+
+
+<div id="map"></div>
+
+<script>
+    var map = L.map('map').setView([50.283333, 2.783333], 13);
+
+    // add the OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>'
+    }).addTo(map);
+
+    // show the scale bar on the lower left corner
+    L.control.scale({imperial: true, metric: true}).addTo(map);
+</script>
+
 <form action = "{% url 'itin:new_trip' %}" method = "get">
     <button class="button-85" name="route_id" value="{{route.id}}"> Nouvelle sortie</button>
 </form>
