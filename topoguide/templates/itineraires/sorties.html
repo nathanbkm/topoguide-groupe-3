@@ -4,20 +4,32 @@
 {{ route.title }} - Détails
 {% endblock %}
 
+<!--Extra head information-->
 {% block head %}
 <style>
     #map { height: 500px; width : 50%}
 </style>
+{% load static %}
+<script src="{% static 'itineraires/map.js' %}"></script>
 {% endblock %}
 
+<!--Body of the page-->
 {% block body %}
 
-
-
-
 <h1>Sorties de {{ route.title }}</h1>
-<div id="map"></div>
 
+<!--Map-->
+<div id="map-container">
+    <div id="map"></div>
+    <script>
+        start_lon = {{ route.start_lon }}
+        start_lat = {{ route.start_lat }}
+        arriv_lon = {{ route.arriv_lon }}
+        arriv_lat = {{ route.arriv_lat }}
+        
+        var map = create_map(start_lon,start_lat,arriv_lon,arriv_lat);
+    </script>
+</div>
 <table>
     <tr>
         <th>Altitude de départ</th>
@@ -127,37 +139,4 @@
 <form action = "{% url 'itin:new_trip' %}" method = "get">
     <button class="button-85" name="route_id" value="{{route.id}}"> Nouvelle sortie</button>
 </form>
-
-<script>
-    
-    start_lon = {{ route.start_lon }}
-    start_lat = {{ route.start_lat }}
-    arriv_lon = {{ route.arriv_lon }}
-    arriv_lat = {{ route.arriv_lat }}
-    
-    med_lon = (start_lon + arriv_lon)/2
-    med_lat = (start_lat + arriv_lat)/2
-    
-
-    corner1 = L.latLng(start_lon, start_lat),
-    corner2 = L.latLng(arriv_lon, arriv_lat),
-    bounds = L.latLngBounds(corner1, corner2);
-    //map
-    var map = L.map('map', {
-        center : [med_lon, med_lat]
-    }).fitBounds(bounds);
-    
-    // add the OpenStreetMap tiles
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>'
-    }).addTo(map);
-    
-    L.marker({lon: start_lat, lat: start_lon}).bindPopup('Départ').addTo(map);
-    L.marker({lon: arriv_lat, lat: arriv_lon}).bindPopup('Arrivée').addTo(map);
-
-    // show the scale bar on the lower left corner
-    L.control.scale({imperial: false, metric: true}).addTo(map);
-</script>
-
 {% endblock %}
