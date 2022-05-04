@@ -155,8 +155,13 @@ class Comment(models.Model):
         mod_status (models.CharField) : The moderation status of the comment
     """
     class mod_level(models.TextChoices):
+        # Public status : anybody can see the comment
         PUBLIC  = 'PU', ('Public')
+        # Private status : only the author of the comment 
+        # can see it
         PRIVATE = 'PR', ('Privé')
+        # Hidden status : only the author of the trip and 
+        # the author of the comment can see it
         HIDDEN  = 'HI', ('Caché')
         
     trip = models.ForeignKey(Sortie,verbose_name="Sortie", on_delete=models.CASCADE)
@@ -169,4 +174,16 @@ class Comment(models.Model):
         choices=mod_level.choices,
         default=mod_level.PUBLIC,
     )
+    
+class Photo(models.Model):
+    """Class that represents an image on a given trip
+
+    Attributes :
+        trip (models.ForeignKey(Sortie)) : The trip related to this image
+        pub_date (models.DateField) : The publication date of the images
+        image (models.ImageField) : The image field given by the author
+    """
+    trip = models.ForeignKey(Sortie,verbose_name="Sortie", on_delete=models.CASCADE)
+    pub_date = models.DateTimeField("Date de publication",default=timezone.now)
+    image = models.ImageField(upload_to='images/', null=True, blank=True)
     

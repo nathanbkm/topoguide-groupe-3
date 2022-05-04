@@ -53,5 +53,14 @@ urlpatterns = [
         view = login_required(
             views.TripUpdateView.as_view()
         )
+    ),
+    
+    # Image form
+    path(
+        'nouvelle_image/<int:trip_id>',
+        name = "new_image",
+        view = login_required(
+            views.imagesCreateView
+        )
     )
 ]

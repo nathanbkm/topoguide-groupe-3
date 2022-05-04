@@ -1,8 +1,11 @@
+
 {% extends 'base.html' %}
 <!--Title of the page-->
 {% block title %}
 Sortie de {{ trip.user.username }}
 {% endblock %}
+
+{% load static %}
 
 {% block body %}
 
@@ -38,6 +41,22 @@ Sortie de {{ trip.user.username }}
     </tr>
 </table>
 
+<h2>Images</h2>
+
+{% if photos %}
+    {% for photo in photos%}
+        <img src= "{{ photo.image.url }}">
+    {% endfor %}
+{% else %}
+    <p> Pas encore de photos pour cette sortie.</p>
+{% endif %}
+
+
+{% if user == trip.user%}
+    <a href="{% url 'itin:new_image' trip.id%}">
+        <button class="button-31">Ajouter des images</button>
+    </a>
+{% endif %}
 
 <h2>Commentaires</h2>
 

@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+<!--Title of the page-->
+{% block title %}
+Nouvelles Images
+{% endblock %}
+
+{% block body %}
+
+<h1>Nouvelles Images</h1>
+
+<!--Form-->
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{form}}
+    <input class="normal" type="submit" value="Enregistrer">
+</form>
+
+{% endblock %}
