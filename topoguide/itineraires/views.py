@@ -3,12 +3,10 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from django.views.generic.edit import FormMixin
-
 from django.forms.widgets import SelectDateWidget
-
 from .models import Itineraire, Sortie, Comment, Photo
 from .forms import CommentForm, ImageForm
-from django.db.models import Q
+from django.db.models import Q, Avg, Count
 
 def HomagepageView(request):
     return render(request, 'itineraires/homepage.html', )
@@ -29,6 +27,8 @@ class IndexView(ListView):
 
         query = self.request.GET.get('search_term')
         
+        list_count = []
+        
         if query:
             route = route.filter(Q(description__icontains = query) | Q(title__icontains = query))
             return route
@@ -37,6 +37,11 @@ class IndexView(ListView):
         # Filter the trips which difficulties are lower than the one inserted
         if difficulty:
             route = route.filter(Q(estim_difficulty__lte = difficulty))
+        
+        difficulty_avg = self.request.GET.get('difficulty_avg')
+        
+        if difficulty_avg:
+            route = route.annotate(avg_difficulty=Avg('sortie__difficulty_felt')).filter(avg_difficulty__lte= difficulty_avg)
         # Gets the two duration between which we search the real duration   
         duration_inf = self.request.GET.get('duration_inf')
         duration_sup = self.request.GET.get('duration_sup')
@@ -44,6 +49,16 @@ class IndexView(ListView):
         if duration_inf and duration_sup:
             route = route.filter(Q(estim_duration__range = (duration_inf, duration_sup)))
         
+        duration_avg = self.request.GET.get('duration_avg')
+        
+        if duration_avg:
+            route = route.annotate(avg_duration=Avg('sortie__actual_duration')).filter(avg_duration__lte = duration_avg)
+        
+        popularity = self.request.GET.get('popularity')
+        
+        if popularity:
+            route = route.annotate(popularity = 100*(Count('sortie') + Count('sortie__comment'))/(Sortie.objects.all().count() + Comment.objects.all().count())).filter(popularity__gte = popularity)
+
         return route
         
 
@@ -67,8 +82,10 @@ class RouteDetailView(DetailView) :
         # Gets the charfield in the charbar        
         search_term = self.request.GET.get('search_term')
         # Filter the trips with the usernames that contains what we have in the searchbar if something is writen
+        # and the words in the comments for one trip
         if search_term:
-            context['trip_list'] = context['trip_list'].filter(Q(user__username__icontains = search_term))
+            context['trip_list'] = context['trip_list'].filter(Q(user__username__icontains = search_term)
+                                                               | Q(comment__description__icontains = search_term))
             return context
         # Gets the two dates inserted in the interface    
         date_pub_inf = self.request.GET.get('date_pub_inf')
@@ -103,7 +120,6 @@ class RouteDetailView(DetailView) :
             return context
         if mixte and expert:
             context['trip_list'] = context['trip_list'].filter(Q(group_xp = 'M') | Q(group_xp = 'E'))
-            return context
             return context
         if debutant:
             context['trip_list'] = context['trip_list'].filter(Q(group_xp = 'B'))

@@ -19,10 +19,19 @@ Topoguide - Index
     <label for="difficulty">Difficulté : </label>
     1 <input class="normal" type="range" id="difficulty" name="difficulty" step="1" min="1" max="5" value="5"> 5
     <br>
+    <label for="difficulty_avg">Difficulté moyenne : </label>
+    1 <input class="normal" type="range" id="difficulty_avg" name="difficulty_avg" step="0.1" min="1" max="5" value="5"> 5
+    <br>
     <label for="duration">Durée entre </label>
-    <input class="normal" type="time" id="duration_inf" name="duration_inf" value="00:00">
+    <input class="normal" type="time" id="duration" name="duration_inf" value="00:00">
     <label for="duration"> et </label>
-    <input class="normal" type="time" id="duration_sup" name="duration_sup">
+    <input class="normal" type="time" id="duration" name="duration_sup">
+    <br>
+    <label for="duration_avg">Durée moyenne :  </label>
+    <input class="normal" type="time" id="duration_avg" name="duration_avg">
+    <br>
+    <label for="popularity">Popularité : </label>
+    Peu populaire <input class="normal" type="range" id="popularity" name="popularity" step="1" min="0" max="100" value="100"> Trés populaire
     <br>
     <button class="normal" type="submit"><i class="normal">Filtrer</i>
     </button>
