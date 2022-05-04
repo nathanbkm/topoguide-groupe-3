@@ -7,7 +7,11 @@
     <title>{% block title %} {% endblock %}</title>
     {% load static %}
     <link rel="stylesheet" type="text/css" href="{% static 'itineraires/style.css' %}">
-</head>
+    <link rel="stylesheet" type="text/css" href="{% static 'itineraires/leaflet.css' %}">
+    <script src="{% static 'itineraires/leaflet.js' %}"></script>
+    {% block head%}
+    {% endblock %}
+  </head>
 <body>
     <div class="topnav">
         <a href="{% url 'itin:index' %}">Acceuil</a>

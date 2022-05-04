@@ -48,6 +48,11 @@ class Itineraire(models.Model) :
     title = models.CharField("Nom de l'itinéraire",max_length=50)
     description = models.TextField("Description",max_length=1000)
     start_point = models.CharField("Point de départ",max_length=100)
+    #Coordinates
+    start_lat = models.FloatField("Longitude du point de départ", default=43.5695)
+    start_lon = models.FloatField("Longitude du point de départ", default= 1.4728)
+    arriv_lat = models.FloatField("Longitude du point d'arrivée", default=43.5667)
+    arriv_lon = models.FloatField("Longitude du point d'arrivée", default= 1.4748)
     
     #Height info
     base_height = models.IntegerField("Altitude de départ",default=0)
