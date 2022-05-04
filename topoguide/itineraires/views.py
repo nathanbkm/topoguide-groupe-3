@@ -61,7 +61,8 @@ class RouteDetailView(generic.DetailView) :
         search_term = self.request.GET.get('search_term')
         # Filter the trips with the usernames that contains what we have in the searchbar if something is writen
         if search_term:
-            context['trip_list'] = context['trip_list'].filter(Q(user__username__icontains = search_term))
+            context['trip_list'] = context['trip_list'].filter(Q(user__username__icontains = search_term)
+                                                               | Q(comment__description__icontains = search_term))
             return context
         # Gets the two dates inserted in the interface    
         date_pub_inf = self.request.GET.get('date_pub_inf')
@@ -96,7 +97,6 @@ class RouteDetailView(generic.DetailView) :
             return context
         if mixte and expert:
             context['trip_list'] = context['trip_list'].filter(Q(group_xp = 'M') | Q(group_xp = 'E'))
-            return context
             return context
         if debutant:
             context['trip_list'] = context['trip_list'].filter(Q(group_xp = 'B'))
