@@ -10,7 +10,7 @@ Sortie de {{ trip.user.username }}
 {% block body %}
 
 <h1>
-    <a href="{% url 'itin:detail_route' route.id%}">
+    <a href="{% url 'itin:detail_route' trip.route.id%}">
         {{ route.title }} 
     </a> - Sortie de {{ trip.user.username }}
 </h1>
@@ -40,6 +40,9 @@ Sortie de {{ trip.user.username }}
         <td>{{ trip.difficulty_felt }}/5</td>
     </tr>
 </table>
+<a href="{% url 'itin:detail_route' route.id%}">
+    <button class="button-31">Retour aux sorties de {{ trip.route }}</button>
+</a>
 
 <h2>Images</h2>
 
