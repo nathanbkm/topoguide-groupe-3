@@ -4,13 +4,32 @@
 {{ route.title }} - Détails
 {% endblock %}
 
+{% block head %}
+<style>
+    #map { height: 500px; width : 50%}
+</style>
+{% endblock %}
+
 {% block body %}
 
+
+
+
 <h1>Sorties de {{ route.title }}</h1>
+<div id="map"></div>
+
 <table>
     <tr>
         <th>Altitude de départ</th>
         <td>{{ route.base_height }} m</td>
+    </tr>
+    <tr>
+        <th>Coordonnées départ</th>
+        <td>{{ route.start_lon }}°, {{ route.start_lat }}°</td>
+    </tr>
+    <tr>
+        <th>Coordonnées arrivée</th>
+        <td>{{ route.arriv_lon }}°, {{ route.arriv_lat }}°</td>
     </tr>
     <tr>
         <th>Altitude minimale</th>
@@ -72,29 +91,40 @@
 {% endif %}
 
 
-<style>
-    #map { height: 180px; }
-</style>
-
-
-<div id="map"></div>
-
-<script>
-    var map = L.map('map').setView([50.283333, 2.783333], 13);
-
-    // add the OpenStreetMap tiles
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>'
-    }).addTo(map);
-
-    // show the scale bar on the lower left corner
-    L.control.scale({imperial: true, metric: true}).addTo(map);
-</script>
-
 <form action = "{% url 'itin:new_trip' %}" method = "get">
     <button class="button-85" name="route_id" value="{{route.id}}"> Nouvelle sortie</button>
 </form>
 
+<script>
+    
+    start_lon = {{ route.start_lon }}
+    start_lat = {{ route.start_lat }}
+    arriv_lon = {{ route.arriv_lon }}
+    arriv_lat = {{ route.arriv_lat }}
+    
+    med_lon = (start_lon + arriv_lon)/2
+    med_lat = (start_lat + arriv_lat)/2
+    
+
+    corner1 = L.latLng(start_lon, start_lat),
+    corner2 = L.latLng(arriv_lon, arriv_lat),
+    bounds = L.latLngBounds(corner1, corner2);
+    //map
+    var map = L.map('map', {
+        center : [med_lon, med_lat]
+    }).fitBounds(bounds);
+    
+    // add the OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>'
+    }).addTo(map);
+    
+    L.marker({lon: start_lat, lat: start_lon}).bindPopup('Départ').addTo(map);
+    L.marker({lon: arriv_lat, lat: arriv_lon}).bindPopup('Arrivée').addTo(map);
+
+    // show the scale bar on the lower left corner
+    L.control.scale({imperial: false, metric: true}).addTo(map);
+</script>
 
 {% endblock %}

@@ -9,7 +9,9 @@
     <link rel="stylesheet" type="text/css" href="{% static 'itineraires/style.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'itineraires/leaflet.css' %}">
     <script src="{% static 'itineraires/leaflet.js' %}"></script>
-</head>
+    {% block head%}
+    {% endblock %}
+  </head>
 <body>
     <div class="topnav">
         <a href="{% url 'itin:index' %}">Acceuil</a>
