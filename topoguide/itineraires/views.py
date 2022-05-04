@@ -4,9 +4,14 @@ from django.urls import reverse
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from django.views.generic.edit import FormMixin
 
+from django.forms.widgets import SelectDateWidget
+
 from .models import Itineraire, Sortie, Comment, Photo
 from .forms import CommentForm, ImageForm
 from django.db.models import Q
+
+def HomagepageView(request):
+    return render(request, 'itineraires/homepage.html', )
 
 class IndexView(ListView):
     """View for the main page aka the list of routes
@@ -187,6 +192,12 @@ class TripCreateView(CreateView):
         form.instance.route = Itineraire.objects.get(
             id=self.request.GET.get("route_id"))
         return super().form_valid(form)
+    
+    def get_form(self):
+        '''add date picker in forms'''
+        form = super(TripCreateView, self).get_form()
+        form.fields['date'].widget = SelectDateWidget()
+        return form
 
 class TripUpdateView(UpdateView):
     """View to edit a trip
@@ -214,6 +225,12 @@ class TripUpdateView(UpdateView):
             return super().form_valid(form)
         else :
             return HttpResponseForbidden("Vous n'avez pas créé cette sortie, vous ne pouvez donc pas la modifier.")
+        
+    def get_form(self):
+        '''add date picker in forms'''
+        form = super(TripUpdateView, self).get_form()
+        form.fields['date'].widget = SelectDateWidget()
+        return form
         
 
 def imagesCreateView(request, trip_id):

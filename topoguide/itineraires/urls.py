@@ -10,6 +10,16 @@ app_name = 'itin'
 # generic and non-genetic views
 
 urlpatterns = [
+    
+    #The main page
+    path(
+        '', 
+        name = 'homepage',
+        view = login_required(
+            views.HomagepageView
+        )
+    ),
+    
     #The main page
     path(
         'itineraires/', 
