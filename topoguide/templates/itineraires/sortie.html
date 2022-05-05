@@ -1,5 +1,6 @@
 
 {% extends 'base.html' %}
+{% load bootstrap5 %}
 <!--Title of the page-->
 {% block title %}
 Sortie de {{ trip.user.username }}
@@ -47,9 +48,27 @@ Sortie de {{ trip.user.username }}
 <h2>Images</h2>
 
 {% if photos %}
-    {% for photo in photos%}
-        <img src= "{{ photo.image.url }}">
-    {% endfor %}
+<div class="d-block w-50">
+   <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-inner">
+
+            {% for photo in photos %}
+              <!-- Single item -->
+                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                    <img src="{{ photo.image.url }}" class="d-block w-100">
+                </div>
+            {% endfor %}
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Next</span>
+        </button>
+    </div>
+</div>
 {% else %}
     <p> Pas encore de photos pour cette sortie.</p>
 {% endif %}
@@ -66,8 +85,8 @@ Sortie de {{ trip.user.username }}
 <!--Form-->
 <form method="post" >
     {% csrf_token %}
-    {{form}}
-    <input class="normal" type="submit" value="Partager">
+    {% bootstrap_form form %}
+    <button type="submit" class="btn btn-primary">Partager</button>
 </form>
 
 {% if comments %}
