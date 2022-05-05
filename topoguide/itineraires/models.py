@@ -1,3 +1,5 @@
+import math
+from operator import mod
 from tkinter import HIDDEN
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.auth.models import User
@@ -192,3 +194,31 @@ class Photo(models.Model):
     pub_date = models.DateTimeField("Date de publication",default=timezone.now)
     image = models.ImageField(upload_to='images/', null=True, blank=True)
     
+    
+class Localisation(models.Model):
+    """Class that represents a localisation with its latitude and longitude
+
+    Attributes :
+        name (models.CharField) : name of the choosen localisation
+        lat_loc (models.FloatField) : latitude of the localisation
+        long_loc (models.FloatField) : longitude of the localisation
+    """
+    name = models.CharField("Localisation", max_length=30)
+    lat_loc = models.FloatField("Longitude de la localisation", default=43.5695)
+    long_loc = models.FloatField("Longitude de la localisation", default= 1.4728)
+    
+    def distance(self, lat, long):
+        radiusT = 6371
+        lat = lat*math.pi/180
+        long = long*math.pi/180
+        
+        lat_loc = self.lat_loc*math.pi/180
+        long_loc = self.long_loc*math.pi/180
+        
+        d = 2*radiusT*math.asin(math.sqrt(math.pow((lat-lat_loc)/2, 2)
+                             + math.pow((long-long_loc)/2, 2)*math.cos(lat)*math.cos(lat_loc)))
+        
+        return d
+    
+    def __str__(self):
+        return self.name

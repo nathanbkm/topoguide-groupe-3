@@ -32,14 +32,14 @@ class IndexView(ListView):
         if query:
             route = route.filter(Q(description__icontains = query) | Q(title__icontains = query))
             return route
-        # Gets the difficulty choose in the range   
+        # Gets the difficulty chose in the range   
         difficulty = self.request.GET.get('difficulty')
         # Filter the trips which difficulties are lower than the one inserted
         if difficulty:
             route = route.filter(Q(estim_difficulty__lte = difficulty))
-        
+        # Gets the avg difficulty chose in the range
         difficulty_avg = self.request.GET.get('difficulty_avg')
-        
+        # Filter the routes which avg dificulties of all the trips are lower than the one inserted
         if difficulty_avg:
             route = route.annotate(avg_difficulty=Avg('sortie__difficulty_felt')).filter(avg_difficulty__lte= difficulty_avg)
         # Gets the two duration between which we search the real duration   
@@ -48,16 +48,20 @@ class IndexView(ListView):
         # Filter the trips which the real durations are included between the two inserted time if inserted
         if duration_inf and duration_sup:
             route = route.filter(Q(estim_duration__range = (duration_inf, duration_sup)))
-        
+        # Gets the avg duration chose in the range
         duration_avg = self.request.GET.get('duration_avg')
-        
+        # Filter the routes which avg duration of all the trips are lower than the one inserted
         if duration_avg:
             route = route.annotate(avg_duration=Avg('sortie__actual_duration')).filter(avg_duration__lte = duration_avg)
-        
+        # Gets the avg duration chose in the range
         popularity = self.request.GET.get('popularity')
-        
+        # Filter the routes which popularity of a route is greater than the one inserted
+        # Popularity is the ratio of the sum of trips and comments for one route with the sum of all the trips and comments
+        # This ratio is multiplied by 100 which is the values of the range
         if popularity:
-            route = route.annotate(popularity = 100*(Count('sortie') + Count('sortie__comment'))/(Sortie.objects.all().count() + Comment.objects.all().count())).filter(popularity__gte = popularity)
+            route = route.annotate(popularity = 100*(Count('sortie') + Count('sortie__comment'))
+                                   /(Sortie.objects.all().count() + Comment.objects.all().count())
+                                   ).filter(popularity__gte = popularity)
 
         return route
         
@@ -109,24 +113,31 @@ class RouteDetailView(DetailView) :
         mixte = self.request.GET.get('M')
         expert = self.request.GET.get('E')
         # Filter the trips which the experience of the group are checkered by the ckeckboxes
+        # Return the context for all boxes checkered
         if debutant and mixte and expert:
             context['trip_list'] = context['trip_list'].filter((Q(group_xp = 'B') | Q(group_xp = 'M')) | Q(group_xp = 'E'))
             return context
+        # Return the context for beginner and mixte boxes checkered
         if debutant and mixte:
             context['trip_list'] = context['trip_list'].filter(Q(group_xp = 'B') | Q(group_xp = 'M'))
             return context
+        # Return the context for expert and mixte boxes checkered
         if debutant and expert:
             context['trip_list'] = context['trip_list'].filter(Q(group_xp = 'B') | Q(group_xp = 'E'))
             return context
+        # Return the context for expert and beginner boxes checkered
         if mixte and expert:
             context['trip_list'] = context['trip_list'].filter(Q(group_xp = 'M') | Q(group_xp = 'E'))
             return context
+        # Return the context for beginner box checkered
         if debutant:
             context['trip_list'] = context['trip_list'].filter(Q(group_xp = 'B'))
             return context
+        # Return the context for mixte box checkered
         if mixte:
             context['trip_list'] = context['trip_list'].filter(Q(group_xp = 'M'))
             return context
+        # Return the context for exprrt box checkered
         if expert:
             context['trip_list'] = context['trip_list'].filter(Q(group_xp = 'E'))
             return context
