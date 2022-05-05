@@ -64,9 +64,27 @@ Sortie de {{ trip.user.username }}
 <h2>Commentaires</h2>
 
 <!--Form-->
+{% load force_dark %}
 <form method="post" >
     {% csrf_token %}
-    {{form}}
+    <table>
+        {% for field in form %}
+        <tr>
+        <div class="fieldWrapper">
+            {{ field.errors }}
+            <td>
+                {{ field.label_tag }}
+            </td>
+            <td>
+                {{ field | addclass:'normal' }}
+            </td>
+            {% if field.help_text %}
+            <p class="help">{{ field.help_text|safe }}</p>
+            {% endif %}
+        </div>
+        </tr>
+        {% endfor %}
+    </table>
     <input class="normal" type="submit" value="Partager">
 </form>
 
