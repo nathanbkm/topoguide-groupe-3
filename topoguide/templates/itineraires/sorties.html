@@ -7,7 +7,10 @@
 <!--Extra head information-->
 {% block head %}
 <style>
-    #map { height: 500px; width : 50%}
+    #map { width : 500px; height: 500px}
+    .icon {
+        width:40px; height:40px
+    }
 </style>
 {% load static %}
 <script src="{% static 'itineraires/map.js' %}"></script>
@@ -15,12 +18,14 @@
 
 <!--Body of the page-->
 {% block body %}
+<div class="container-fluid text-center">
+    <h1>Sorties de {{ route.title }}</h1>
+</div>
 
-<h1>Sorties de {{ route.title }}</h1>
-
-<!--Map-->
-<div id="map-container">
-    <div id="map"></div>
+<div class="container row">
+    <div class="col-lg-7 p-5 my-auto" id ="map-conatiner">
+    <!--Map-->
+    <div id="map" class="my-auto"></div>
     <script>
         start_lon = {{ route.start_lon }}
         start_lat = {{ route.start_lat }}
@@ -30,80 +35,86 @@
         var map = create_map(start_lon,start_lat,arriv_lon,arriv_lat);
     </script>
 </div>
-<table>
-    <tr>
-        <th>Altitude de départ</th>
-        <td>{{ route.base_height }} m</td>
-    </tr>
-    <tr>
-        <th>Coordonnées départ</th>
-        <td>{{ route.start_lon }}°, {{ route.start_lat }}°</td>
-    </tr>
-    <tr>
-        <th>Coordonnées arrivée</th>
-        <td>{{ route.arriv_lon }}°, {{ route.arriv_lat }}°</td>
-    </tr>
-    <tr>
-        <th>Altitude minimale</th>
-        <td>{{ route.min_height }} m</td>
-    </tr>
-    <tr>
-        <th>Altitude maximale</th>
-        <td>{{ route.max_height }} m</td>
-    </tr>
-    <tr>
-        <th>Dénivelé cumulé positif</th>
-        <td>{{ route.pos_elev_gain }} m</td>
-    </tr>
-    <tr>
-        <th>Dénivelé cumulé négatif</th>
-        <td>{{ route.neg_elev_gain }} m</td>
-    </tr>
-    <tr>
-        <th>Durée estimée</th>
-        <td>{{ route.time_display }}</td>
-    </tr>
-    <tr>
-        <th>Difficulté estimée</th>
-        <td>{{ route.estim_difficulty }}/5</td>
-    </tr>
+<div class="col-lg-4 p-10 my-auto" id="trip_data">
+    <table>
+        <tr>
+            <th>Altitude de départ</th>
+            <td>{{ route.base_height }} m</td>
+        </tr>
+        <tr>
+            <th>Coordonnées départ</th>
+            <td>{{ route.start_lon }}°, {{ route.start_lat }}°</td>
+        </tr>
+        <tr>
+            <th>Coordonnées arrivée</th>
+            <td>{{ route.arriv_lon }}°, {{ route.arriv_lat }}°</td>
+        </tr>
+        <tr>
+            <th>Altitude minimale</th>
+            <td>{{ route.min_height }} m</td>
+        </tr>
+        <tr>
+            <th>Altitude maximale</th>
+            <td>{{ route.max_height }} m</td>
+        </tr>
+        <tr>
+            <th>Dénivelé cumulé positif</th>
+            <td>{{ route.pos_elev_gain }} m</td>
+        </tr>
+        <tr>
+            <th>Dénivelé cumulé négatif</th>
+            <td>{{ route.neg_elev_gain }} m</td>
+        </tr>
+        <tr>
+            <th>Durée estimée</th>
+            <td>{{ route.time_display }}</td>
+        </tr>
+        <tr>
+            <th>Difficulté estimée</th>
+            <td>{{ route.estim_difficulty }}/5</td>
+        </tr>
+    </table>
+</div>
+</div>
 
-</table>
+
 <br>
+
+
+
 <form action="{% url 'itin:detail_route' route.id %}" method="get">
-    <input class="normal" name="search_term" type="text" placeholder="Search">
-    <button class="normal" type="submit"><i class="normal">Search</i>
-    </button>
+<input class="normal" name="search_term" type="text" placeholder="Search">
+<button class="normal" type="submit"><i class="normal">Search</i>
+</button>
 </form>
 <br>
-
-<form action="{% url 'itin:detail_route' route.id %}" method="get">
-    <label for="date_inf">Publié entre le </label>
-    <input class="normal" type="date" id="date_inf" name="date_pub_inf">
-    <label for="date_sup"> et le </label>
-    <input class="normal" type="date" id="date_sup" name="date_pub_sup">
-    <br>
-    <label for="difficulty">Difficulté : </label>
-    1 <input class="normal" type="range" id="difficulty" name="difficulty" step="1" min="1" max="5" value="5"> 5
-    <br>
-    <label for="duration">Durée entre </label>
-    <input class="normal" type="time" id="duration_inf" name="duration_inf" value="00:00">
-    <label for="duration"> et </label>
-    <input class="normal" type="time" id="duration_sup" name="duration_sup">
-    <br>
-    <input type="checkbox" id="deb" name="B">
-    <label for="deb"> Tous débutants</label><br>
-    <input type="checkbox" id="mixte" name="M">
-    <label for="mixte"> Mixte</label><br>
-    <input type="checkbox" id="exp" name="E">
-    <label for="exp"> Tous expérimentés</label>
-    <br>
-    <button class="normal" type="submit"><i class="normal">Filtrer</i>
-    </button>
-  </form>
+    
+    <form action="{% url 'itin:detail_route' route.id %}" method="get">
+        <label for="date_inf">Publié entre le </label>
+        <input class="normal" type="date" id="date_inf" name="date_pub_inf">
+        <label for="date_sup"> et le </label>
+        <input class="normal" type="date" id="date_sup" name="date_pub_sup">
+        <br>
+        <label for="difficulty">Difficulté : </label>
+        1 <input class="normal" type="range" id="difficulty" name="difficulty" step="1" min="1" max="5" value="5"> 5
+        <br>
+        <label for="duration">Durée entre </label>
+        <input class="normal" type="time" id="duration_inf" name="duration_inf" value="00:00">
+        <label for="duration"> et </label>
+        <input class="normal" type="time" id="duration_sup" name="duration_sup">
+        <br>
+        <input type="checkbox" id="deb" name="B">
+        <label for="deb"> Tous débutants</label><br>
+        <input type="checkbox" id="mixte" name="M">
+        <label for="mixte"> Mixte</label><br>
+        <input type="checkbox" id="exp" name="E">
+        <label for="exp"> Tous expérimentés</label>
+        <br>
+        <button class="normal" type="submit"><i class="normal">Filtrer</i>
+        </button>
+    </form>
 
 {% if trip_list %}
-
 <table>
     <tr>
         <th>Par</th>
