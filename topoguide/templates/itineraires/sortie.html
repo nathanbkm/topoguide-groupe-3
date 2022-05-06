@@ -83,6 +83,7 @@ Sortie de {{ trip.user.username }}
 <h2>Commentaires</h2>
 
 <!--Form-->
+{% load force_dark %}
 <form method="post" >
     {% csrf_token %}
     {% bootstrap_form form %}
